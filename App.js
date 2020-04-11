@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, ActivityIndicator, AsyncStorage, StatusBar, Text, TouchableOpacity, View, TextInput} from 'react-native';
+import {StyleSheet, Button, ActivityIndicator, AsyncStorage, StatusBar, Text, TouchableOpacity, View, TextInput} from 'react-native';
 import { createSwitchNavigator, createAppContainer } from 'react-navigation';
 import { createStackNavigator} from 'react-navigation-stack';
 
@@ -58,8 +58,14 @@ class HomeScreen extends React.Component {
         <Text style={styles.welcome}>
           welcome Logged Page
         </Text>
+        <Button onPress={this._logout} title="Logout"/>
       </View>
     );
+  }
+
+  _logout = async () => {
+    await AsyncStorage.clear();
+    this.props.navigation.navigate('Auth');
   }
 }
 
