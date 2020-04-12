@@ -9,7 +9,7 @@ export default class LoginScreen extends React.Component {
   }
 
   static navigationOptions = {
-    header: null
+    headerShown: false
   };
   
   render() {
@@ -47,10 +47,12 @@ export default class LoginScreen extends React.Component {
         "Content-Type": "application/json"
         }
     })
-    .then(response => {
-        if(response.status == 200) {
+    .then(response => response.json())
+    .then(responseData => {
+        if(responseData.message == null) {
             (async () => {
                 await AsyncStorage.setItem('logged', '1');
+                await AsyncStorage.setItem('userId', responseData.id);
                 this.props.navigation.navigate('App');
             })();
         } else {
