@@ -1,7 +1,5 @@
 import React from 'react';
-import {StyleSheet, AsyncStorage, Text, TouchableOpacity, View, TextInput} from 'react-native';
-
-const userInfo = {username: 'admin', password: '12345'};
+import { Platform, StyleSheet, AsyncStorage, Text, TouchableOpacity, View, TextInput} from 'react-native';
 
 export default class LoginScreen extends React.Component {
 
@@ -39,15 +37,32 @@ export default class LoginScreen extends React.Component {
   }
 
   _signin = async () => {
-    if(userInfo.username === this.state.username && userInfo.password === this.state.password) {
-      await AsyncStorage.setItem('logged', '1');
-      this.props.navigation.navigate('App');
-    } else {
-      alert('Username or Password wrong');
-    }
+    fetch(`http://devapi.doktuz.com:8080/goambu/api/auth?mobilePlatform=${Platform.OS}`, {
+        method: 'POST',
+        body: JSON.stringify({
+            "username": this.state.username,
+            "password": this.state.password
+        }),
+        headers: {
+        "Content-Type": "application/json"
+        }
+    })
+    .then(response => {
+        if(response.status == 200) {
+            (async () => {
+                await AsyncStorage.setItem('logged', '1');
+                this.props.navigation.navigate('App');
+            })();
+        } else {
+            alert('Username or Password wrong');
+        }
+    })
+    .catch(error => {
+        alert(error);
+    })
   }
-
 }
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
