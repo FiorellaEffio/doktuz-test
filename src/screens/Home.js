@@ -12,6 +12,8 @@ export default class HomeScreen extends React.Component {
         super(props);
         this.state = {
             clientId: '',
+            firstName: '',
+            lastName: '',
             loading: true
         }
     }
@@ -32,7 +34,11 @@ export default class HomeScreen extends React.Component {
                     <NavigationContainer style={styles.navigationTabs}>
                         <Tab.Navigator>
                             <Tab.Screen name="Map" component={MapScreen} />
-                            <Tab.Screen initialParams={{clientId: this.state.clientId}} name="Profile" component={ProfileScreen} />
+                            <Tab.Screen initialParams={{
+                                    clientId: this.state.clientId,
+                                    firstName: this.state.firstName,
+                                    lastName: this.state.lastName
+                                }} name="Profile" component={ProfileScreen} />
                         </Tab.Navigator>
                     </NavigationContainer>
                 </View>
@@ -47,6 +53,8 @@ export default class HomeScreen extends React.Component {
         .then(responseData => {
             this.setState({
                 clientId: responseData.id,
+                firstName: responseData.firstName,
+                lastName: responseData.lastName,
                 loading: false
             })
         })      
