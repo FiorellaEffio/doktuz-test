@@ -5,7 +5,7 @@ export default class LoginScreen extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {username:'',password:''}
+    this.state = {username:'contacto@doktuz.com',password:'doktuzcasa'}
   }
 
   static navigationOptions = {

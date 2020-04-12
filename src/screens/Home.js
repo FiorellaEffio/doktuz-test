@@ -1,31 +1,57 @@
 import React from 'react';
 import {StyleSheet, Button, AsyncStorage, Text, View} from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import ProfileScreen from '../components/Profile';
+import MapScreen from '../components/Map';
+
+const Tab = createBottomTabNavigator();
 
 export default class HomeScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            userId: ''
+            clientId: '',
+            loading: true
         }
-        this._loadId();
     }
+    componentDidMount() {
+        this._loadClientId();
+    }
+    static navigationOptions = {
+        headerShown: false
+    };
 
     render() {
-        return(
-        <View style={styles.container}>
-            <Text style={styles.welcome}>
-            welcome Logged Page {this.state.userId}
-            </Text>
-            <Button onPress={this._logout} title="Logout"/>
-        </View>
-        );
+        if(this.state.loading) {
+            return <Text>Cargando...</Text>
+        } else {
+            return(
+                <View style={styles.container}>
+                    <Button onPress={this._logout} title="Logout"/>
+                    <NavigationContainer style={styles.navigationTabs}>
+                        <Tab.Navigator>
+                            <Tab.Screen name="Map" component={MapScreen} />
+                            <Tab.Screen initialParams={{clientId: this.state.clientId}} name="Profile" component={ProfileScreen} />
+                        </Tab.Navigator>
+                    </NavigationContainer>
+                </View>
+            );
+        }
     }
 
-    _loadId = async () => {
-        const userId = await AsyncStorage.getItem('userId');
-        console.log(userId);
-        this.setState({
-            userId
+    _loadClientId = async () => {
+        let userId = await AsyncStorage.getItem('userId');
+        fetch(`http://devapi.doktuz.com:8080/goambu/api/clients?user_id=${userId}`)
+        .then(response => response.json())
+        .then(responseData => {
+            this.setState({
+                clientId: responseData.id,
+                loading: false
+            })
+        })      
+        .catch(error => {
+            alert(error);
         })
     }
 
@@ -39,7 +65,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        backgroundColor: '#fff'
+        backgroundColor: '#fff',
+        paddingTop: 20,
     },
     welcome: {
         fontSize: 20,
