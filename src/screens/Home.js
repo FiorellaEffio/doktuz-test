@@ -33,7 +33,9 @@ export default class HomeScreen extends React.Component {
                     <Button onPress={this._logout} title="Logout"/>
                     <NavigationContainer style={styles.navigationTabs}>
                         <Tab.Navigator>
-                            <Tab.Screen name="Map" component={MapScreen} />
+                            <Tab.Screen initialParams={{
+                                    clientId: this.state.clientId
+                                }} name="Map" component={MapScreen} />
                             <Tab.Screen initialParams={{
                                     clientId: this.state.clientId,
                                     firstName: this.state.firstName,

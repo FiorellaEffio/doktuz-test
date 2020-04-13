@@ -1,7 +1,7 @@
 import React from 'react';
-import {Text, StyleSheet, Dimensions, AsyncStorage, Button, View} from 'react-native';
+import {Platform, Text, StyleSheet, Dimensions, AsyncStorage, Button, View} from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
-import { TextInput } from 'react-native-gesture-handler';
+import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 
@@ -39,7 +39,6 @@ export default class MapScreen extends React.Component {
                     <View style={{marginTop: 10, marginLeft: 15, marginRight:10}}>
                         <View>
                             <Text>Mueve el pin para seleccionar el lugar</Text>
-                            <TextInput  style={{borderColor: '#52cad6', borderWidth:2, borderRadius:5,marginTop:4, height:45}}/>
                         </View>
                         <View style={{marginTop:5}}>
                             <Text style={styles.heading1}>
@@ -52,6 +51,11 @@ export default class MapScreen extends React.Component {
                             </Text>
                         </View>
                     </View>
+                    <View>
+                        <TouchableOpacity onPress={this._createRequest}>
+                            <Text>Registrar solicitud</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         );
@@ -61,6 +65,71 @@ export default class MapScreen extends React.Component {
         let geocode = await Location.reverseGeocodeAsync(location)
         console.log(geocode);
         this.setState({ geocode})
+    }
+
+    _createRequest = async () => {
+        let geocodeToText = String([this.state.geocode[0].postalCode]) + " " 
+            + String([this.state.geocode[0].street]) + ", " 
+            + String([this.state.geocode[0].city]) + ", "
+            + String([this.state.geocode[0].region]) + "/" + String([this.state.geocode[0].country]);
+        console.log(geocodeToText);
+        fetch(`http://devapi.doktuz.com:8080/goambu/api/clients/${this.props.route.params.clientId}/request-attention?organization_id=1`, {
+            method: 'POST',
+            body: JSON.stringify({
+                "location": {
+                    "coordinates": [
+                      this.state.markerData.latitude,
+                      this.state.markerData.longitude
+                    ]
+                },
+                "reference": geocodeToText,
+                "cost": 0,
+                "clientId": this.props.route.params.clientId,
+                "organizationId": "1",//this is for default in the pdf
+                "confirmReason": "string",
+                "attentionType": "string",
+                "preorderId": "string",
+                "payment": "string",
+                "attentionSubType": "string",
+                "createdBy": Platform.OS,
+                "scheduledDate": 0,
+                "leadChannel": "string",
+                "patientsId": [
+                    "string"
+                ],
+                "channel": "string",
+                "source": "string",
+                "medium": "string",
+                "feeComisionWorker": 0,
+                "countAttention": 0,
+                "year": "string",
+                "month": "string",
+                "suspect": true,
+                "clientDataDokbot": {
+                    "size": 0,
+                    "weight": 0,
+                    "dokbotType": "string"
+                },
+                "tokenChat": "string",
+                "userMessageCulqi": "string",
+                "merchantMessageculqi": "string"
+            }),
+            headers: {
+            "Content-Type": "application/json"
+            }
+        })
+        .then(response => response.json())
+        .then(responseData => {
+            console.log(responseData);
+            alert("Tu solicitud ha sido recibida y su estado es: " + responseData.currentStatus);
+            // this.setState({
+            //     attentionList: responseData,
+            //     loading: false
+            // });
+        })      
+        .catch(error => {
+            alert("No hemos podido procesar tu solicitud. \/nError: " + error);
+        })
     }
 
     _loadCurrentPosition = async () => {
