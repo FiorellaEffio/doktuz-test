@@ -1,27 +1,77 @@
 import React from 'react';
 import {Text, StyleSheet, Dimensions, AsyncStorage, Button, View} from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import MapView from 'react-native-maps';
+import MapView, {Marker} from 'react-native-maps';
+import { TextInput } from 'react-native-gesture-handler';
+import * as Location from 'expo-location';
+import * as Permissions from 'expo-permissions';
 
 export default class MapScreen extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            markerData: {
+                latitude: -12.074179,
+                longitude: -77.100244,
+            },
+            mapData: {
+                latitude: -12.074179,
+                longitude: -77.100244,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+            },
+            location:null,
+            geocode:null,
+            errorMessage:""
+        }
+        this._loadCurrentPosition();
     }
+
     render() {
         return (
-            // <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            //     <Text>Map Screen!</Text>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <MapView style={styles.mapStyle}
-                    initialRegion={{
-                    latitude: 37.78825,
-                    longitude: -122.4324,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
-                    }}
-                />
-            // </View>
+                    region={this.state.mapData}>
+                    <Marker
+                        coordinate={this.state.markerData}
+                    />
+                </MapView>
+                <View style={{backgroundColor:'#fff', position:'absolute',width:'100%',bottom:0}}>
+                    <View style={{marginTop: 10, marginLeft: 15, marginRight:10}}>
+                        <View>
+                            <Text>Mueve el pin para seleccionar el lugar</Text>
+                            <TextInput  style={{borderColor: '#52cad6', borderWidth:2, borderRadius:5,marginTop:4, height:45}}/>
+                        </View>
+                        <View style={{marginTop:5}}>
+
+                        </View>
+                    </View>
+                </View>
+            </View>
         );
+    }
+
+    _loadCurrentPosition = async () => {
+        let { status } = await Permissions.askAsync(Permissions.LOCATION);
+        if (status !== 'granted') {
+          this.setState({
+            errorMessage: 'Permission to access location was denied',
+          });
+        }
+    
+        let location = await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.Highest});
+        console.log(location);
+        // const { latitude , longitude } = location.coords
+        // this.getGeocodeAsync({latitude, longitude})
+        this.setState({ 
+            markerData: {
+                latitude: location.coords.latitude, 
+                longitude: location.coords.longitude
+            },
+            mapData: {
+                latitude: location.coords.latitude, 
+                longitude: location.coords.longitude,
+            }
+        });
     }
 }
 
