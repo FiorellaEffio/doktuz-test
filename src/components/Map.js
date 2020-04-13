@@ -42,12 +42,25 @@ export default class MapScreen extends React.Component {
                             <TextInput  style={{borderColor: '#52cad6', borderWidth:2, borderRadius:5,marginTop:4, height:45}}/>
                         </View>
                         <View style={{marginTop:5}}>
-
+                            <Text style={styles.heading1}>
+                                {this.state.geocode  ? `${this.state.geocode[0].city}, 
+                                ${this.state.geocode[0].isoCountryCode}` :""},
+                                {this.state.geocode ? this.state.geocode[0].street :""},
+                            </Text>
+                            <Text>
+                                Error: {this.state.errorMessage}
+                            </Text>
                         </View>
                     </View>
                 </View>
             </View>
         );
+    }
+
+    getGeocodeAsync = async (location) => {
+        let geocode = await Location.reverseGeocodeAsync(location)
+        console.log(geocode);
+        this.setState({ geocode})
     }
 
     _loadCurrentPosition = async () => {
@@ -60,8 +73,8 @@ export default class MapScreen extends React.Component {
     
         let location = await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.Highest});
         console.log(location);
-        // const { latitude , longitude } = location.coords
-        // this.getGeocodeAsync({latitude, longitude})
+        const { latitude , longitude } = location.coords
+        this.getGeocodeAsync({latitude, longitude})
         this.setState({ 
             markerData: {
                 latitude: location.coords.latitude, 
@@ -70,6 +83,8 @@ export default class MapScreen extends React.Component {
             mapData: {
                 latitude: location.coords.latitude, 
                 longitude: location.coords.longitude,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
             }
         });
     }
