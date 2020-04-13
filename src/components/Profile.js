@@ -11,9 +11,15 @@ export default class ProfileScreen extends React.Component {
             attentionList: [],
             loading: true,
         }
-        this._loadAttentionListByClientId();
     }
-
+    componentDidMount() {
+        this._reloadAttentionList = this.props.navigation.addListener('focus', () => {
+            this._loadAttentionListByClientId();
+        });
+    }
+    componentWillUnmount() {
+        this._reloadAttentionList();
+    }
     createAttentionList = () => {
         let attentions = [];
         console.log(this.state.attentionList.length);
@@ -36,7 +42,7 @@ export default class ProfileScreen extends React.Component {
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <Text>{this.props.route.params.clientId} Hola {this.props.route.params.firstName} {this.props.route.params.lastName}</Text>
                     <Text>Lista de solicitudes...</Text>
-                    <View>
+                    <View style={{marginVertical: 50, height: 50}}>
                         <ScrollView>
                             { this.createAttentionList() }
                         </ScrollView>
