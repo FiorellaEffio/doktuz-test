@@ -67,11 +67,9 @@ export default class MapScreen extends React.Component {
         + String([geocode[0].street]) + ", " + String([geocode[0].city]) + ", "
         + String([geocode[0].region]) + "/" + String([geocode[0].country]);
         this.setState({ geocodeText: geocodeToText});
-        console.log(this.state.geocodeText);
     }
 
     _createRequest = async () => {
-        console.log(this.geocodeToText);
         fetch(`http://devapi.doktuz.com:8080/goambu/api/clients/${this.props.route.params.clientId}/request-attention?organization_id=1`, {
             method: 'POST',
             body: JSON.stringify({
@@ -81,7 +79,7 @@ export default class MapScreen extends React.Component {
                       this.state.markerData.longitude
                     ]
                 },
-                "reference": this.geocodeText,
+                "reference": this.state.geocodeText,
                 "cost": 0,
                 "clientId": this.props.route.params.clientId,
                 "organizationId": "1",//this is for default in the pdf
@@ -119,7 +117,6 @@ export default class MapScreen extends React.Component {
         })
         .then(response => response.json())
         .then(responseData => {
-            console.log(responseData);
             alert("Tu solicitud ha sido recibida y su estado es: " + responseData.currentStatus);
         })      
         .catch(error => {

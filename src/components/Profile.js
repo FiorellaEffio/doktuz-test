@@ -22,12 +22,12 @@ export default class ProfileScreen extends React.Component {
     }
     createAttentionList = () => {
         let attentions = [];
-        console.log(this.state.attentionList.length);
         for(let i = 0; i < this.state.attentionList.length; i++){
             attentions.push(
-                <View key = {i}>
-                    <Text>Numero de orden: {this.state.attentionList[i].id}</Text>
-                    <Text>Estado de la orden: {this.state.attentionList[i].currentStatus}</Text>
+                <View key = {i} style={styles.requestContainer}>
+                    <Text style={styles.requestInfo}>N° solicitud: {this.state.attentionList[i].id}</Text>
+                    <Text style={styles.requestInfo}>Referencia: {this.state.attentionList[i].reference}</Text>
+                    <Text style={styles.requestInfo}>Estado: {this.state.attentionList[i].currentStatus}</Text>
                 </View>
             )
         }
@@ -44,14 +44,22 @@ export default class ProfileScreen extends React.Component {
         } else {
             return (
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <Text>Lista de solicitudes...</Text>
-                    <View style={{marginVertical: 50, height: 250}}>
-                        <ScrollView>
+                    <Text style={styles.textRequest}>Lista de solicitudes...</Text>
+                    <View style={{marginVertical: 20, height: 350,marginHorizontal: 'auto'}}>
+                        <ScrollView style={{marginHorizontal: 'auto'}}>
                             { this.createAttentionList() }
                         </ScrollView>
                     </View>
-                    <TouchableOpacity onPress={this._loadAttentionListByClientId}>
-                        <Text>Click para actualizar</Text>
+                    <Text style={{marginBottom:5}}>Si no puedes visualizar tu ultima solicitud</Text>
+                    <TouchableOpacity style={{
+                            backgroundColor: "#095a95", 
+                            borderRadius: 20, 
+                            height: 40, 
+                            width: "80%",
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }} onPress={this._loadAttentionListByClientId}>
+                        <Text style={{color: "#fff"}}>Click para actualizar</Text>
                     </TouchableOpacity>
                 </View>
             );
@@ -63,8 +71,6 @@ export default class ProfileScreen extends React.Component {
         fetch(`http://devapi.doktuz.com:8080/goambu/api/clients/${this.props.route.params.clientId}/attentions?client_id=${this.props.route.params.clientId}&organization_id=1`)
         .then(response => response.json())
         .then(responseData => {
-            console.log("numero de entradas");
-            console.log(responseData.length);
             this.setState({
                 attentionList: responseData,
                 loading: false
@@ -75,3 +81,21 @@ export default class ProfileScreen extends React.Component {
         })
     }
 }
+const styles = StyleSheet.create({
+    textRequest: {
+        color: "#095a95",
+        fontSize: 18,
+        fontWeight: "700",
+    },
+    requestContainer:{
+        borderColor: "#095a95",
+        borderWidth: 2,
+        borderRadius: 20,
+        marginVertical: 10,
+        padding: 10,
+        marginHorizontal: 10
+    },
+    requestInfo: {
+        color: "#333",
+    }
+})
