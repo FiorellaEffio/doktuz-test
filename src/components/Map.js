@@ -1,5 +1,5 @@
 import React from 'react';
-import {Platform, TouchableOpacity, Text, StyleSheet, Dimensions, View} from 'react-native';
+import {Platform, ActivityIndicator, TouchableOpacity, Text, StyleSheet, Dimensions, View} from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
@@ -22,20 +22,10 @@ export default class MapScreen extends React.Component {
             },
             location:null,
             geocodeText: "Doktuz",
+            errorMessage: "Cargando...",
             defaultLocationDoktuz: true,
         }
         this._loadCurrentPosition();
-    }
-
-    getLocationText = () => {
-        return (
-            this.defaultLocationDoktuz ?
-            <View>
-                <Text>Dirección Actual: {this.geocodeText}</Text>
-                <Text>Se denegó acceso a la ubicación.</Text>
-            </View>
-            : <Text>Dirección por defecto: Doktuz</Text>
-        );
     }
 
     render() {
@@ -48,9 +38,17 @@ export default class MapScreen extends React.Component {
                     />
                 </MapView>
                 <View style={{backgroundColor:'#fff', position:'absolute',width:'100%',bottom:0}}>
-                    <View style={{marginTop: 10, marginLeft: 15, marginRight:10}}>
-                        <View style={{marginTop:5}}>
-                            { this.getLocationText() }
+                    <View style={{ marginLeft: 15, marginRight:10}}>
+                        <View style={{marginVertical:15}}>
+                            <Text>
+                                Dirección Actual: 
+                                {   
+                                    this.state.errorMessage === "Cargando..." ?
+                                    <ActivityIndicator style={{marginRight: 15}} size="small" color="#ff8984"/>
+                                    : <Text>{this.state.geocodeText}</Text>
+                                }
+                            </Text>
+                            <Text style={{color: "#ff8984", marginTop: 5}}>{this.state.errorMessage}</Text>
                         </View>
                     </View>
                     <View style={styles.container}>
@@ -68,8 +66,8 @@ export default class MapScreen extends React.Component {
         let geocodeToText = String([geocode[0].postalCode]) + " " 
         + String([geocode[0].street]) + ", " + String([geocode[0].city]) + ", "
         + String([geocode[0].region]) + "/" + String([geocode[0].country]);
-
-        this.setState({ geocodeText: geocodeToText})
+        this.setState({ geocodeText: geocodeToText});
+        console.log(this.state.geocodeText);
     }
 
     _createRequest = async () => {
@@ -131,33 +129,32 @@ export default class MapScreen extends React.Component {
 
     _loadCurrentPosition = async () => {
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
+ 
         if (status !== 'granted') {
-          this.setState({
-            errorMessage: 'Se denegó acceso a la ubicación.',
-            defaultLocationDoktuz: false
-          });
-        } else {
             this.setState({
+              errorMessage: '*(Se denegó el acceso a tu ubicación.)',
+              defaultLocationDoktuz: false
+            });
+        } else {
+            let location = await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.Highest});
+            this.setState({ 
+                markerData: {
+                    latitude: location.coords.latitude, 
+                    longitude: location.coords.longitude
+                },
+                mapData: {
+                    latitude: location.coords.latitude, 
+                    longitude: location.coords.longitude,
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421,
+                }
+            });
+            await this.getGeocodeAsync(this.state.markerData);
+            this.setState({ 
+                errorMessage: "",
                 defaultLocationDoktuz: true
             });
         }
-    
-        let location = await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.Highest});
-        console.log(location);
-        const { latitude , longitude } = location.coords
-        this.getGeocodeAsync({latitude, longitude})
-        this.setState({ 
-            markerData: {
-                latitude: location.coords.latitude, 
-                longitude: location.coords.longitude
-            },
-            mapData: {
-                latitude: location.coords.latitude, 
-                longitude: location.coords.longitude,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-            }
-        });
     }
 }
 
@@ -178,7 +175,8 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         height: 50,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginBottom: 15
     },
     requestAttentionText: {
         color: "#fff",
