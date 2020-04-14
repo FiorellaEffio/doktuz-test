@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Button, AsyncStorage, Text, View} from 'react-native';
+import {StyleSheet, Image, TouchableOpacity, Button, AsyncStorage, Text, View} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import ProfileScreen from '../components/Profile';
@@ -30,17 +30,22 @@ export default class HomeScreen extends React.Component {
         } else {
             return(
                 <View style={styles.container}>
-                    <Button onPress={this._logout} title="Logout"/>
+                    <View style={styles.header}>
+                        <Text style={styles.headerText}>Hola {this.state.firstName} {this.state.lastName}</Text>
+                        <TouchableOpacity onPress={this._logout} title="Cerrar Sesión">
+                            <Image style={styles.signOutImage} source={require('../../assets/logout.png')} />
+                        </TouchableOpacity>
+                    </View>
                     <NavigationContainer style={styles.navigationTabs}>
                         <Tab.Navigator>
                             <Tab.Screen initialParams={{
                                     clientId: this.state.clientId
-                                }} name="Map" component={MapScreen} />
+                                }} name="Registrar solicitud" component={MapScreen} />
                             <Tab.Screen initialParams={{
                                     clientId: this.state.clientId,
                                     firstName: this.state.firstName,
                                     lastName: this.state.lastName
-                                }} name="Profile" component={ProfileScreen} />
+                                    }} name="Solicitudes" component={ProfileScreen} />
                         </Tab.Navigator>
                     </NavigationContainer>
                 </View>
@@ -72,15 +77,26 @@ export default class HomeScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
+    header: {
+        flexDirection: 'row',
+        position: 'relative', 
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+        width: '100%', 
+        height: 70,
+        padding: 15
+    },
+    headerText: {
+        color: "#095a95",
+        fontSize: 18
+    },
+    signOutImage: {
+        width: 25,
+        height: 25,
+    },
     container: {
         flex: 1,
         justifyContent: 'center',
-        backgroundColor: '#fff',
-        paddingTop: 20,
-    },
-    welcome: {
-        fontSize: 20,
-        textAlign: 'center',
-        margin: 10,
+        backgroundColor: 'transparent',
     },
 })

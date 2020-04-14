@@ -1,8 +1,8 @@
 import React from 'react';
-import {Text, TouchableOpacity, StyleSheet, AsyncStorage, Button, View} from 'react-native';
+import {Text, TouchableOpacity, ActivityIndicator, StyleSheet, AsyncStorage, Button, View} from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { ScrollView } from 'react-native-gesture-handler';
 
 export default class ProfileScreen extends React.Component {
     constructor(props) {
@@ -36,13 +36,16 @@ export default class ProfileScreen extends React.Component {
 
     render() {
         if(this.state.loading) {
-            return <Text>Cargando...</Text>
+            return (
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size="large" color="#095a95" />
+                </View>
+            )
         } else {
             return (
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <Text>{this.props.route.params.clientId} Hola {this.props.route.params.firstName} {this.props.route.params.lastName}</Text>
                     <Text>Lista de solicitudes...</Text>
-                    <View style={{marginVertical: 50, height: 50}}>
+                    <View style={{marginVertical: 50, height: 250}}>
                         <ScrollView>
                             { this.createAttentionList() }
                         </ScrollView>
@@ -57,7 +60,7 @@ export default class ProfileScreen extends React.Component {
 
     _loadAttentionListByClientId = async () => {
         let userId = await AsyncStorage.getItem('userId');
-        fetch(`http://devapi.doktuz.com:8080/goambu/api/clients/${this.props.route.params.clientId}/attentions?organization_id=1`)
+        fetch(`http://devapi.doktuz.com:8080/goambu/api/clients/${this.props.route.params.clientId}/attentions?client_id=${this.props.route.params.clientId}&organization_id=1`)
         .then(response => response.json())
         .then(responseData => {
             console.log("numero de entradas");

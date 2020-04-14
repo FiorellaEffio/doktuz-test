@@ -21,19 +21,19 @@ export default class LoginScreen extends React.Component {
         />
         <TextInput 
           style={styles.input} 
-          placeholder="Correo Electronico"
+          placeholder="Correo Electrónico"
           onChangeText={(username)=>this.setState({username})}
           value={this.state.username}
         />
         <TextInput 
           style={styles.input} 
-          placeholder="Contrasena"
+          placeholder="Contraseña"
           secureTextEntry={true}
           onChangeText={(password)=>this.setState({password})}
           value={this.state.password}
         />
         <TouchableOpacity onPress={this._signin} style={styles.btnEnter}>
-          <Text style={{color: '#fff', fontSize: 16}}>Iniciar Sesion</Text>
+          <Text style={{color: '#fff', fontSize: 16}}>Iniciar sesión</Text>
         </TouchableOpacity>
       </View>
     );

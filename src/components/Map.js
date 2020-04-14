@@ -1,9 +1,10 @@
 import React from 'react';
-import {Platform, Text, StyleSheet, Dimensions, AsyncStorage, Button, View} from 'react-native';
+import {Platform, TouchableOpacity, Text, StyleSheet, Dimensions, View} from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
-import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 export default class MapScreen extends React.Component {
     constructor(props) {
@@ -20,10 +21,21 @@ export default class MapScreen extends React.Component {
                 longitudeDelta: 0.0421,
             },
             location:null,
-            geocode:null,
-            errorMessage:""
+            geocodeText: "Doktuz",
+            defaultLocationDoktuz: true,
         }
         this._loadCurrentPosition();
+    }
+
+    getLocationText = () => {
+        return (
+            this.defaultLocationDoktuz ?
+            <View>
+                <Text>Dirección Actual: {this.geocodeText}</Text>
+                <Text>Se denegó acceso a la ubicación.</Text>
+            </View>
+            : <Text>Dirección por defecto: Doktuz</Text>
+        );
     }
 
     render() {
@@ -37,23 +49,13 @@ export default class MapScreen extends React.Component {
                 </MapView>
                 <View style={{backgroundColor:'#fff', position:'absolute',width:'100%',bottom:0}}>
                     <View style={{marginTop: 10, marginLeft: 15, marginRight:10}}>
-                        <View>
-                            <Text>Mueve el pin para seleccionar el lugar</Text>
-                        </View>
                         <View style={{marginTop:5}}>
-                            <Text style={styles.heading1}>
-                                {this.state.geocode  ? `${this.state.geocode[0].city}, 
-                                ${this.state.geocode[0].isoCountryCode}` :""},
-                                {this.state.geocode ? this.state.geocode[0].street :""},
-                            </Text>
-                            <Text>
-                                Error: {this.state.errorMessage}
-                            </Text>
+                            { this.getLocationText() }
                         </View>
                     </View>
-                    <View>
-                        <TouchableOpacity onPress={this._createRequest}>
-                            <Text>Registrar solicitud</Text>
+                    <View style={styles.container}>
+                        <TouchableOpacity style={styles.requestAttentionBtn} onPress={this._createRequest}>
+                            <Text style={styles.requestAttentionText}>Registrar solicitud</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -63,16 +65,15 @@ export default class MapScreen extends React.Component {
 
     getGeocodeAsync = async (location) => {
         let geocode = await Location.reverseGeocodeAsync(location)
-        console.log(geocode);
-        this.setState({ geocode})
+        let geocodeToText = String([geocode[0].postalCode]) + " " 
+        + String([geocode[0].street]) + ", " + String([geocode[0].city]) + ", "
+        + String([geocode[0].region]) + "/" + String([geocode[0].country]);
+
+        this.setState({ geocodeText: geocodeToText})
     }
 
     _createRequest = async () => {
-        let geocodeToText = String([this.state.geocode[0].postalCode]) + " " 
-            + String([this.state.geocode[0].street]) + ", " 
-            + String([this.state.geocode[0].city]) + ", "
-            + String([this.state.geocode[0].region]) + "/" + String([this.state.geocode[0].country]);
-        console.log(geocodeToText);
+        console.log(this.geocodeToText);
         fetch(`http://devapi.doktuz.com:8080/goambu/api/clients/${this.props.route.params.clientId}/request-attention?organization_id=1`, {
             method: 'POST',
             body: JSON.stringify({
@@ -82,7 +83,7 @@ export default class MapScreen extends React.Component {
                       this.state.markerData.longitude
                     ]
                 },
-                "reference": geocodeToText,
+                "reference": this.geocodeText,
                 "cost": 0,
                 "clientId": this.props.route.params.clientId,
                 "organizationId": "1",//this is for default in the pdf
@@ -122,10 +123,6 @@ export default class MapScreen extends React.Component {
         .then(responseData => {
             console.log(responseData);
             alert("Tu solicitud ha sido recibida y su estado es: " + responseData.currentStatus);
-            // this.setState({
-            //     attentionList: responseData,
-            //     loading: false
-            // });
         })      
         .catch(error => {
             alert("No hemos podido procesar tu solicitud. \/nError: " + error);
@@ -136,8 +133,13 @@ export default class MapScreen extends React.Component {
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status !== 'granted') {
           this.setState({
-            errorMessage: 'Permission to access location was denied',
+            errorMessage: 'Se denegó acceso a la ubicación.',
+            defaultLocationDoktuz: false
           });
+        } else {
+            this.setState({
+                defaultLocationDoktuz: true
+            });
         }
     
         let location = await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.Highest});
@@ -170,4 +172,16 @@ const styles = StyleSheet.create({
       width: Dimensions.get('window').width,
       height: Dimensions.get('window').height,
     },
+    requestAttentionBtn: {
+        width: '80%',
+        backgroundColor: "#ff8984",
+        borderRadius: 20,
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    requestAttentionText: {
+        color: "#fff",
+        fontSize: 16
+    }
 });
