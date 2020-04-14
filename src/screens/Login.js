@@ -1,5 +1,5 @@
 import React from 'react';
-import { Platform, StyleSheet, AsyncStorage, Text, TouchableOpacity, View, TextInput} from 'react-native';
+import { Platform, Image, StyleSheet, AsyncStorage, Text, TouchableOpacity, View, TextInput} from 'react-native';
 
 export default class LoginScreen extends React.Component {
 
@@ -15,7 +15,10 @@ export default class LoginScreen extends React.Component {
   render() {
     return(
       <View style={styles.container}>
-        <Text style={styles.welcome}>Login</Text>
+        <Image
+          style={{width: 200, height: 60, marginBottom: 10}}
+          source={require('../../assets/doktuz-logo.png')}
+        />
         <TextInput 
           style={styles.input} 
           placeholder="Correo Electronico"
@@ -30,7 +33,7 @@ export default class LoginScreen extends React.Component {
           value={this.state.password}
         />
         <TouchableOpacity onPress={this._signin} style={styles.btnEnter}>
-          <Text style={{color: '#fff'}}>Iniciar Sesion</Text>
+          <Text style={{color: '#fff', fontSize: 16}}>Iniciar Sesion</Text>
         </TouchableOpacity>
       </View>
     );
@@ -69,7 +72,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        backgroundColor: '#fff'
+        alignItems: 'center',
     },
     welcome: {
         fontSize: 20,
@@ -77,7 +80,8 @@ const styles = StyleSheet.create({
         margin: 10,
     },
     input: {
-        margin: 15,
+        width: '80%',
+        marginVertical: 10,
         height: 40,
         padding: 5,
         fontSize: 16,
@@ -85,11 +89,12 @@ const styles = StyleSheet.create({
         borderBottomColor: '#428af8'
     },
     btnEnter: {
+        width: '60%',
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
         backgroundColor: '#095a95',
-        marginHorizontal: 20,
+        marginVertical: 10,
         borderRadius: 25,
         height: 50,
     }
