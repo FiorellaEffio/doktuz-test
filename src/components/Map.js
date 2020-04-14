@@ -44,7 +44,7 @@ export default class MapScreen extends React.Component {
                                 Dirección Actual: 
                                 {   
                                     this.state.errorMessage === "Cargando..." ?
-                                    <ActivityIndicator style={{marginRight: 15}} size="small" color="#ff8984"/>
+                                    <ActivityIndicator style={{width: 10, height: 10,marginRight: 15}} size="small" color="#ff8984"/>
                                     : <Text>{this.state.geocodeText}</Text>
                                 }
                             </Text>
