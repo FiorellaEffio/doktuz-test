@@ -36,12 +36,19 @@ export default class HomeScreen extends React.Component {
                             <Image style={styles.signOutImage} source={require('../../assets/logout.png')} />
                         </TouchableOpacity>
                     </View>
-                    <NavigationContainer style={styles.navigationTabs}>
-                        <Tab.Navigator>
-                            <Tab.Screen initialParams={{
+                    <NavigationContainer style={styles.navigationTabsContainer}>
+                        <Tab.Navigator tabBarOptions={{
+                                activeBackgroundColor: '#f7f8f9',
+                                activeTintColor: '#ff8984',
+                                tabStyle: {
+                                    justifyContent: 'center'
+                                },
+                                showIcon: false
+                            }}>
+                            <Tab.Screen style={styles.navigationTab} initialParams={{
                                     clientId: this.state.clientId
                                 }} name="Registrar solicitud" component={MapScreen} />
-                            <Tab.Screen initialParams={{
+                            <Tab.Screen style={styles.navigationTab} initialParams={{
                                     clientId: this.state.clientId,
                                     firstName: this.state.firstName,
                                     lastName: this.state.lastName
